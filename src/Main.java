@@ -10,6 +10,7 @@ public class Main {
         Scanner sc= new Scanner(System.in);
         boolean running = true;
         UserRepository userRepository = new InMemoryUserRepository();
+        AuthService authService = new AuthService(userRepository);
 
         System.out.println("Welcome to Auth : ");
 
@@ -20,9 +21,9 @@ public class Main {
             String choice = sc.nextLine();
 
             switch (choice) {
-                case "1" -> register(sc,userRepository);
-                case "2" -> login(sc,userRepository);
-                case "3" -> listUsers(userRepository);
+                case "1" -> register(sc,authService);
+                case "2" -> login(sc,authService);
+                case "3" -> listUsers(authService);
                 case "4" -> {
                             running = false;
                             System.out.println("Application Stopped");
@@ -46,28 +47,31 @@ public class Main {
         System.out.println("4. Exit");
     }
 
-    public static void register(Scanner sc,UserRepository userRepository){
+    public static void register(Scanner sc,AuthService authService){
         System.out.println("Enter your email : ");
         String email = sc.nextLine();
         System.out.println("Enter your password : ");
         String password = sc.nextLine();
         System.out.println("Registration received for "+email);
         try {
-
-            User user = new User(email, password);
-
-            if(userRepository.existsByEmail(user.getEmail())){
-                System.out.println("Resgitration Failed : Email Already Exists !!");
-                return;
+            boolean registred = authService.register(email, password);
+            if(registred){
+                System.out.println("Resgitration successful.");
+            }else{
+                System.out.println(
+                    "Registration Failed: "+
+                    "email is already registred."
+                );
             }
-            userRepository.save(user);
-            System.out.println("Registration Successful : "+user.getEmail());
         } catch (IllegalArgumentException e) {
-            System.out.println("Registration Failed : "+e.getMessage());
+            System.out.println(
+                "Registration Failed: "+
+                e.getMessage()
+            );
         }
     }
 
-    public static void login(Scanner sc ,UserRepository userRepository){
+    public static void login(Scanner sc ,AuthService authService){
         
         System.out.println("Enter your email : ");
         String email = sc.nextLine();
@@ -75,17 +79,22 @@ public class Main {
         String password = sc.nextLine();
         System.out.println("Login received for "+email);
 
-        User user = userRepository.findByEmail(email);
-        if(user != null && user.hasPassword(password)){
-            System.out.println("Login successful for : "+user.getEmail());
+        User user = authService.login(email, password);
+        if(user != null){
+            System.out.println(
+                "Login successful! Welcome "+
+                user.getEmail()
+            );
         }else{
-            System.out.println("Invalid Email or Password");
+            System.out.println(
+                "Invalid email or password !!!!!!"
+            );
         }
     }
 
-    public static void listUsers(UserRepository userRepository){
+    public static void listUsers(AuthService authService){
 
-        List<User> users = userRepository.findAll();
+        List<User> users = authService.findAllUsers();
 
         if(users.isEmpty()){
             System.out.println("No users are Registred !!");
