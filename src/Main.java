@@ -54,20 +54,23 @@ public class Main {
         String password = sc.nextLine();
         System.out.println("Registration received for "+email);
         try {
-            boolean registred = authService.register(email, password);
-            if(registred){
-                System.out.println("Resgitration successful.");
-            }else{
-                System.out.println(
-                    "Registration Failed: "+
-                    "email is already registred."
-                );
-            }
-        } catch (IllegalArgumentException e) {
+            User registred = authService.register(email, password);
+            System.out.println(
+                "Registration Successful for : "+
+                registred.getEmail()
+            );
+            
+        } catch (DuplicateEmailException e) {
             System.out.println(
                 "Registration Failed: "+
                 e.getMessage()
             );
+        } catch(IllegalArgumentException e){
+            System.out.println(
+                "Registration Failed: "+
+                e.getMessage()
+            );
+
         }
     }
 
@@ -79,17 +82,18 @@ public class Main {
         String password = sc.nextLine();
         System.out.println("Login received for "+email);
 
-        User user = authService.login(email, password);
-        if(user != null){
+        try{
+            User user = authService.login(email, password);
             System.out.println(
-                "Login successful! Welcome "+
+                "Login Successful Welcome : "+
                 user.getEmail()
             );
-        }else{
-            System.out.println(
-                "Invalid email or password !!!!!!"
-            );
+        }catch(InvalidCredentialsException e){
+            System.out.println(e.getMessage());
+        }finally{
+            System.out.println("Login Attempt Finished");
         }
+        
     }
 
     public static void listUsers(AuthService authService){
