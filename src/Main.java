@@ -90,8 +90,6 @@ public class Main {
             );
         }catch(InvalidCredentialsException e){
             System.out.println(e.getMessage());
-        }finally{
-            System.out.println("Login Attempt Finished");
         }
         
     }
