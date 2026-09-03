@@ -13,16 +13,17 @@ public class AuthService {
 
     }
 
-    public boolean register(String email, String password){
+    public User register(String email, String password){
 
         User user = new User(email, password);
 
         if(userRepository.existsByEmail(user.getEmail())){
-            return false;
+            throw new DuplicateEmailException();
         }
 
         userRepository.save(user);
-        return true;
+        return user;
+        
 
     }
 
@@ -30,11 +31,11 @@ public class AuthService {
 
         User user = userRepository.findByEmail(email);
 
-        if(user != null && user.hasPassword(password)){
-            return user;
+        if(user == null && !user.hasPassword(password)){
+            throw new InvalidCredentialsException();
         }
 
-        return null;
+        return user;
     }
 
     public List<User> findAllUsers(){
