@@ -53,24 +53,24 @@ public class Main {
         System.out.println("Enter your password : ");
         String password = sc.nextLine();
         System.out.println("Registration received for "+email);
+        RegisterRequest request = new RegisterRequest(email,password);
         try {
-            User registred = authService.register(email, password);
+            UserResponse registredUser = authService.register(request);
             System.out.println(
-                "Registration Successful for : "+
-                registred.getEmail()
+                "Registration Successful for: "+registredUser.email()
             );
-            
-        } catch (DuplicateEmailException e) {
             System.out.println(
-                "Registration Failed: "+
-                e.getMessage()
-            );
-        } catch(IllegalArgumentException e){
-            System.out.println(
-                "Registration Failed: "+
-                e.getMessage()
+                "Assigned Role: "+registredUser.role()
             );
 
+        } catch (DuplicateEmailException e) {
+            System.out.println(
+                "Registration Failed: "+e.getMessage()
+            );
+        } catch (IllegalArgumentException e){
+            System.out.println(
+                "Registration Failed: "+e.getMessage()
+            );
         }
     }
 
@@ -82,21 +82,26 @@ public class Main {
         String password = sc.nextLine();
         System.out.println("Login received for "+email);
 
-        try{
-            User user = authService.login(email, password);
+        LoginRequest request = new LoginRequest(email, password);
+        try {
+            UserResponse authenticatedUser = authService.login(request);
             System.out.println(
-                "Login Successful Welcome : "+
-                user.getEmail()
+                "Login Successful Welcome : "+authenticatedUser.email()
             );
-        }catch(InvalidCredentialsException e){
-            System.out.println(e.getMessage());
+            System.out.println(
+                "Your role: "+authenticatedUser.role()
+            );
+        } catch (InvalidCredentialsException e) {
+            System.out.println(
+                e.getMessage()
+            );
         }
         
     }
 
     public static void listUsers(AuthService authService){
 
-        List<User> users = authService.findAllUsers();
+        List<UserResponse> users = authService.findAllUsers();
 
         if(users.isEmpty()){
             System.out.println("No users are Registred !!");
@@ -105,8 +110,9 @@ public class Main {
 
         System.out.println("Registred users : "+users.size());
         
-        for (User user : users) {
-            System.out.println("Email : "+user.getEmail());
+        for (UserResponse user : users) {
+            System.out.println("Email: "+user.email()+
+                                ", Role: "+user.role());
             
         }
         
