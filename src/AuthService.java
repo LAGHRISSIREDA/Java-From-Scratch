@@ -1,4 +1,5 @@
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class AuthService {
@@ -13,33 +14,49 @@ public class AuthService {
 
     }
 
-    public User register(String email, String password){
+    public UserResponse register(RegisterRequest request){
 
-        User user = new User(email, password);
+        User user = new User(request.email(), request.password());
 
         if(userRepository.existsByEmail(user.getEmail())){
             throw new DuplicateEmailException();
         }
 
         userRepository.save(user);
-        return user;
-        
+
+        //we need to transter user to userReponse object Here
+        //but first i need to create a mfunction that transforms the user into userResponse toResponse
+        return toReponse(user);
 
     }
 
-    public User login(String email, String password){
+    //transform user to userReponse
+    private UserResponse toReponse(User user){
+        return new UserResponse(user.getEmail(),
+                                user.getRole());
+    }
 
-        User user = userRepository.findByEmail(email);
+    public UserResponse login(LoginRequest request){
 
-        if(user == null && !user.hasPassword(password)){
+        User user = userRepository.findByEmail(request.email());
+
+        if(user == null && !user.hasPassword(request.password())){
             throw new InvalidCredentialsException();
         }
 
-        return user;
+        return toReponse(user);
     }
 
-    public List<User> findAllUsers(){
-        return userRepository.findAll();
+    public List<UserResponse> findAllUsers(){
+        List<User> users = userRepository.findAll();
+        List<UserResponse> responses = new ArrayList<>();
+
+        // for(User user:users){
+        //     responses.add(toReponse(user));
+        // }
+
+        // return responses;
+        return users.stream().map(this::toReponse).toList();
     }
     
 }
