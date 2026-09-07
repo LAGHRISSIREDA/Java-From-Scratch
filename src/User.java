@@ -7,6 +7,10 @@ public class User {
     private final String password;
     private final Role role;
 
+    public User(String email,String password){
+        this(email, password, Role.USER);
+    }
+
     public User(String email, String password, Role role){
         if(email == null || email.isBlank()){
             throw new IllegalArgumentException("Email cannot be empty !!");
