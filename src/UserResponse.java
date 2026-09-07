@@ -1,3 +1,5 @@
-public class UserResponse {
-    
+public record UserResponse(
+    String email,
+    Role role
+) {
 }
