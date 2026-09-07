@@ -15,8 +15,14 @@ public class AuthService {
     }
 
     public UserResponse register(RegisterRequest request){
+        Objects.requireNonNull(
+            request,
+            "ResgitrationRequest Cannot be Null!!"
+        );
 
-        User user = new User(request.email(), request.password());
+        User user = new User(request.email(), 
+                            request.password(),
+                            Role.USER);
 
         if(userRepository.existsByEmail(user.getEmail())){
             throw new DuplicateEmailException();
@@ -37,26 +43,30 @@ public class AuthService {
     }
 
     public UserResponse login(LoginRequest request){
+        Objects.requireNonNull(
+            request,
+            "LoginRequest Cannot be Null!!"
+        );
 
-        User user = userRepository.findByEmail(request.email());
-
-        if(user == null && !user.hasPassword(request.password())){
-            throw new InvalidCredentialsException();
-        }
+        User user = userRepository
+                    .findByEmail(request.email())
+                    .filter(foundUser -> 
+                        foundUser.hasPassword(request.password())
+                    )
+                    .orElseThrow(
+                        InvalidCredentialsException::new
+                    );
 
         return toReponse(user);
     }
 
     public List<UserResponse> findAllUsers(){
-        List<User> users = userRepository.findAll();
-        List<UserResponse> responses = new ArrayList<>();
-
-        // for(User user:users){
-        //     responses.add(toReponse(user));
-        // }
-
-        // return responses;
-        return users.stream().map(this::toReponse).toList();
+        return userRepository
+                .findAll()
+                .stream()
+                .map(this::toReponse)
+                .toList();
+        
     }
     
 }
