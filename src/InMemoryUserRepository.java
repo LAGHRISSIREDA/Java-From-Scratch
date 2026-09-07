@@ -3,6 +3,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
 public class InMemoryUserRepository implements UserRepository{
 
@@ -14,14 +15,15 @@ public class InMemoryUserRepository implements UserRepository{
     }
 
     @Override
-    public User findByEmail(String email){
+    public Optional<User> findByEmail(String email){
 
         if(email == null){
             return null;
         }
 
         String normalizeEmail = email.trim().toLowerCase(Locale.ROOT);
-        return usersByEmail.get(normalizeEmail);
+        User user =  usersByEmail.get(normalizeEmail);
+        return Optional.ofNullable(user);
 
     }
 
